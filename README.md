@@ -2,33 +2,20 @@
 
 ## Overview
 
-This repository contains documented IT troubleshooting exercises based on real-world scenarios encountered during networking and endpoint support investigations.
+This repository contains evidence-based troubleshooting case studies based on real endpoint and networking problems. Each lab documents the reported symptoms, diagnostic process, technical evidence, root-cause assessment, and resolution.
 
-The purpose of these labs is to demonstrate a structured troubleshooting methodology, documentation practices, and the use of common IT support tools.
+## Completed Labs
+
+### [Mobile Hotspot Connectivity Troubleshooting](hotspot-connectivity/)
+
+Investigated slow browsing and delayed video loading on a Windows 11 laptop connected through a Samsung mobile hotspot.
+
+Testing validated the local Wi-Fi connection, DHCP, gateway connectivity, DNS resolution, HTTPS access, internet latency, route behavior, and LTE-versus-5G performance.
+
+**Outcome:** The laptop and local hotspot connection were functioning. Elevated latency and jitter beyond the hotspot gateway identified the cellular network path as the most likely source of the inconsistent performance.
+
+**Tools:** `netsh` · `ipconfig` · `ping` · `nslookup` · `curl` · `tracert`
 
 ## Skills Demonstrated
 
-* Network Troubleshooting
-* TCP/IP Analysis
-* DNS Troubleshooting
-* Wi-Fi Diagnostics
-* Command Line Tools
-* Root Cause Analysis
-* Technical Documentation
-
-## Current Labs
-
-### 1. Mobile Hotspot Connectivity Troubleshooting
-
-Status: In Progress
-
-Investigation of internet performance issues on a Windows 11 ThinkPad T15 connected to a Rogers LTE/5G mobile hotspot.
-
-Tools used:
-
-* ipconfig
-* ping
-* tracert
-* nslookup
-* curl
-* netsh
+Network troubleshooting · TCP/IP analysis · Wi-Fi diagnostics · DHCP and DNS validation · Latency and jitter analysis · Route tracing · LAN-versus-WAN fault isolation · Technical documentation

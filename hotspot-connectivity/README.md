@@ -1,313 +1,159 @@
 # Mobile Hotspot Connectivity Troubleshooting
-## Objective
 
-Troubleshoot slow browsing and delayed web loading on a Lenovo ThinkPad T15 using a Samsung phone hotspot on Rogers mobile data. Determine whether the issue is caused by laptop hardware, Wi-Fi hotspot connection, DNS, browser performance, or the cellular network path. Troubleshooting was performed using a structured approach, beginning with local connectivity validation before progressing through gateway, internet, DNS, and application-layer testing.
+## Overview
+
+This case study documents a real connectivity investigation involving slow browsing and delayed video loading on a Lenovo ThinkPad T15 connected to a Samsung phone hotspot on the Rogers cellular network.
+
+Testing progressed from the local Wi-Fi connection to the hotspot gateway, internet path, DNS, HTTPS, and application performance. The objective was to identify whether the problem originated from the laptop, local hotspot connection, name resolution, or cellular network path.
 
 ## Environment
 
-* Device: Lenovo ThinkPad T15
-* Wi-Fi Adapter: Intel Wi-Fi 6 AX201 160MHz
-* Phone Hotspot: Samsung Mobile Hotspot
-* Carrier: Rogers
-* Hotspot Band: 5 GHz
-* Security: WPA3-Personal
+| Component         | Configuration              |
+| ----------------- | -------------------------- |
+| Laptop            | Lenovo ThinkPad T15        |
+| Wi-Fi adapter     | Intel Wi-Fi 6 AX201 160MHz |
+| Hotspot           | Samsung mobile hotspot     |
+| Carrier           | Rogers                     |
+| Hotspot band      | 5 GHz                      |
+| Wireless security | WPA3-Personal              |
+| Operating system  | Windows 11 Pro             |
 
-## Tools Used
+## Symptoms
 
-* netsh
-* ipconfig
-* ping
-* nslookup
-* curl
-* tracert
-* Task Manager
-* Browser testing
+* Web browsing worked but was intermittently slow.
+* YouTube videos loaded, but startup and seeking were delayed.
+* Internet access remained available throughout testing.
+* Performance changed after reconnecting the phone to the cellular network.
 
-## Step 1 – Verify Wi-Fi Adapter and Hotspot Connection
+## Diagnostic Results
 
-Command:
+| Test                             | Key result                                                       | Interpretation                                                   |
+| -------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `netsh wlan show interfaces`     | 94% signal, −40 dBm RSSI, 433.3 Mbps transmit/receive rate       | Strong local Wi-Fi connection                                    |
+| `ipconfig`                       | Valid DHCP address and IPv4/IPv6 gateways                        | Hotspot DHCP was functioning                                     |
+| Gateway ping                     | 0% loss, 2 ms minimum, 79 ms maximum, 22 ms average              | Local hotspot path was reachable, with some latency variation    |
+| Internet ping                    | 0% loss, 32 ms minimum, 418 ms maximum, 105 ms average           | Significant latency and jitter appeared beyond the local gateway |
+| `nslookup google.com`            | Successful IPv4 and IPv6 resolution                              | DNS was functioning                                              |
+| `curl -I https://www.google.com` | Successful HTTP `200 OK` response                                | HTTPS connectivity was working                                   |
+| `tracert 8.8.8.8`                | Destination reached; first hop 2–3 ms; later spikes up to 220 ms | Route completed despite carrier hops that did not answer ICMP    |
+| LTE versus 5G                    | LTE averaged 53 ms; 5G averaged 64 ms with a 194 ms maximum      | LTE was more consistent during this test                         |
+
+## Technical Evidence
+
+### 1. Wireless Link
 
 ```cmd
 netsh wlan show interfaces
 ```
-Screenshot:
 
-![Wi-Fi Interface Details](screenshots/01-netsh-wlan.png)
+![Wi-Fi interface details](screenshots/01-netsh-wlan.png)
 
-Key Results:
+*The laptop maintained a strong 5 GHz hotspot connection with excellent signal and a 433.3 Mbps negotiated link rate.*
 
-```text
-Band: 5 GHz
-Radio Type: 802.11ac
-Authentication: WPA3-Personal (H2E)
-Receive Rate: 433.3 Mbps
-Transmit Rate: 433.3 Mbps
-Signal: 94%
-RSSI: -40 dBm
-```
+<br>
 
-Conclusion:
-
-The laptop was successfully connected to the mobile hotspot over a 5 GHz wireless connection using WPA3-Personal security. Signal strength was excellent at 94% with an RSSI of -40 dBm, and the negotiated transmit and receive rates of 433.3 Mbps indicated that the wireless link was operating normally. No evidence of a local Wi-Fi connectivity issue was observed.
-
-## Step 2 – Identify the Hotspot Gateway
-
-Command:
+### 2. IP Configuration
 
 ```cmd
 ipconfig
 ```
-Screenshot:
 
-![IP Configuration](screenshots/02-ipconfig.png)
+![IP configuration](screenshots/02-ipconfig.png)
 
-Key Results:
+*The hotspot assigned a valid IP configuration and default gateways, confirming successful DHCP operation.*
 
-```text
-IPv4 Address: 10.184.239.26
-Subnet Mask: 255.255.255.0
-Default Gateway (IPv6): fe80::a0ab:42ff:fe36:4dac%14
-Default Gateway (IPv4): 10.184.239.57
-```
+<br>
 
-Conclusion:
+### 3. Local Gateway Test
 
-The laptop successfully obtained a valid IPv4 address from the mobile hotspot and was assigned both IPv4 and IPv6 default gateways. This confirmed that DHCP was functioning correctly and that the hotspot was providing network connectivity to the laptop.
-
-## Step 3 – Test Local Connectivity to the Phone
-
-Command:
-
-```cmd
 ```cmd
 ping 10.184.239.57 -n 20
 ```
-Screenshot:
 
-![Gateway Ping Results](screenshots/03-ping-gateway.png)
+![Gateway ping results](screenshots/03-ping-gateway.png)
 
-Key Results:
+*The phone hotspot responded with no packet loss. The local path was substantially better than the external internet test, although some latency variation remained.*
 
-```text
-Packets Sent: 20
-Packets Received: 20
-Packet Loss: 0%
-Minimum Latency: 2 ms
-Maximum Latency: 79 ms
-Average Latency: 22 ms
+<br>
 
-```
-
-Conclusion:
-
-The laptop successfully communicated with the hotspot gateway with 0% packet loss. Latency was generally low, although occasional spikes were observed. Overall, local connectivity between the laptop and phone hotspot was stable and functional.
-
-
-## Step 4 – Test Internet Latency
-
-Command:
+### 4. External Internet Test
 
 ```cmd
 ping 8.8.8.8 -n 20
 ```
-Screenshot:
 
-![Internet Ping Results](screenshots/04-ping-internet.png)
+![Internet ping results](screenshots/04-ping-internet.png)
 
-Key Results:
+*The external test showed no packet loss but produced latency spikes up to 418 ms, indicating unstable performance beyond the hotspot gateway.*
 
-```text
-Packets Sent: 20
-Packets Received: 20
-Packet Loss: 0%
-Minimum Latency: 32 ms
-Maximum Latency: 418 ms
-Average Latency: 105 ms
-```
+<br>
 
-Conclusion:
-
-The laptop successfully reached an external internet host with 0% packet loss. However, latency was significantly higher and more variable than the gateway test. While the minimum latency was 32 ms, spikes as high as 418 ms were observed, resulting in an average latency of 105 ms. These results suggested that the issue was occurring beyond the local Wi-Fi connection and hotspot gateway.
-
-## Step 5 – Test DNS Resolution
-
-Command:
+### 5. DNS Resolution
 
 ```cmd
 nslookup google.com
 ```
-Screenshot:
 
-![DNS Lookup Results](screenshots/05-nslookup.png)
+![DNS lookup results](screenshots/05-nslookup.png)
 
-Key Results:
+*Google resolved successfully to multiple IPv4 and IPv6 addresses, ruling out a DNS-resolution failure.*
 
-```text
-DNS Server: 10.184.239.57
-Hostname Resolved: google.com
+<br>
 
-IPv4 Addresses Returned:
-142.250.139.138
-142.250.139.100
-142.250.139.113
-142.250.139.101
-142.250.139.102
-142.250.139.139
-
-IPv6 Addresses Returned:
-2607:f8b0:4023:1803::65
-2607:f8b0:4023:1803::8a
-2607:f8b0:4023:1803::64
-2607:f8b0:4023:1803::71
-```
-
-Conclusion:
-
-DNS resolution was successful. The hotspot DNS server responded correctly and resolved google.com to multiple IPv4 and IPv6 addresses. This confirmed that DNS services were functioning properly and were not contributing to the connectivity issue.
-
-## Step 6 – Test HTTP Connectivity
-
-Command:
+### 6. HTTPS Connectivity
 
 ```cmd
 curl -I https://www.google.com
 ```
-Screenshot:
 
-![HTTP Connectivity Test](screenshots/06-curl-google.png)
+![HTTP connectivity test](screenshots/06-curl-google.png)
 
-Key Results:
+*The server returned HTTP `200 OK`, confirming that HTTPS traffic was functioning.*
 
-```text
-HTTP Response: HTTP/1.1 200 OK
-Server: gws
-Content-Type: text/html; charset=ISO-8859-1
-Connection Established: Successful
-```
+<br>
 
-Conclusion:
-
-The laptop successfully established an HTTPS connection to Google's web server and received a valid HTTP 200 OK response. This confirmed that web traffic was functioning correctly and that the issue was not caused by a complete loss of internet connectivity or a web access failure.
-
-## Step 7 – Test Real-World Application Performance
-
-Observations:
-
-Google Search loaded normally.
-
-YouTube videos loaded successfully but startup times were noticeably slower than expected.
-
-Seeking forward or backward within videos introduced delays before playback resumed.
-
-General web browsing was functional, but some websites appeared slower than expected during testing.
-
-
-Conclusion:
-
-Application-level testing confirmed that internet access was functional, but performance was inconsistent.
-
-The issue was most noticeable when accessing content-heavy services such as YouTube.
-
-These findings aligned with the elevated latency and latency spikes observed during internet connectivity testing.
-
-
-## Step 8 – Trace the Network Path
-
-Command:
+### 7. Network Path
 
 ```cmd
 tracert 8.8.8.8
 ```
 
-Screenshot:
+![Traceroute results](screenshots/08-tracert-8.8.8.8.png)
 
-![Traceroute Results](screenshots/08-tracert-8.8.8.8.png)
+*The trace reached its destination. Intermediate timeouts were not treated as failures because carrier and backbone routers commonly block or deprioritize ICMP responses.*
 
-Key Results:
+## LTE and 5G Comparison
 
-```text
-Destination: 8.8.8.8 (Google DNS)
+| Network mode | Minimum | Maximum | Average | Packet loss |
+| ------------ | ------: | ------: | ------: | ----------: |
+| LTE          |   40 ms |   76 ms |   53 ms |          0% |
+| 5G           |   36 ms |  194 ms |   64 ms |          0% |
 
-Hop 1: 10.184.239.57
-Latency: 2-3 ms
+Both modes provided connectivity, but LTE produced more consistent latency during the test test. The 5G connection had a similar minimum response time but substantially larger spikes.
 
-Hops 2-5:
-Request timed out
+## Root-Cause Assessment
 
-Subsequent hops:
-Latency generally ranged between 20 ms and 56 ms, with occasional spikes up to 220 ms.
+The evidence did not indicate a primary failure of the laptop’s Wi-Fi adapter, hotspot signal, DHCP, DNS, or general web connectivity.
 
-Trace completed.
-```
+The largest performance degradation appeared between the hotspot gateway and external internet destinations. Combined with the LTE-versus-5G results and improved performance after reconnection, this pointed to instability in the cellular data session or carrier network path.
 
-Conclusion:
+The exact carrier-side change could not be confirmed without access to Rogers infrastructure or telemetry. Possible factors included cellular congestion, tower or sector selection, radio-band changes, or carrier routing.
 
-The traceroute successfully reached Google's public DNS server. The first hop responded with very low latency, confirming that the local hotspot connection was healthy. Several intermediate hops did not respond to traceroute requests, which is common on carrier and backbone networks that deprioritize or block ICMP traceroute traffic. Despite these timeouts, the trace completed successfully, indicating that traffic was reaching its destination. Occasional latency spikes observed during the trace were consistent with the elevated latency identified during earlier internet connectivity testing.
+## Resolution and Recommendations
 
-## Step 9 – Compare LTE vs 5G
+Performance improved after switching between LTE and 5G and re-establishing the hotspot connection. These actions forced the phone to create a new cellular data session.
 
-LTE Results:
+Recommended actions for recurrence:
 
-```text
-Minimum = 40ms
-Maximum = 76ms
-Average = 53ms
-Packet loss = 0%
-```
-
-5G Results:
-
-```text
-Minimum = 36ms
-Maximum = 194ms
-Average = 64ms
-Packet loss = 0%
-```
-
-Conclusion:
-
-Both LTE and 5G provided successful internet connectivity with no packet loss. LTE produced more consistent latency, while 5G exhibited larger latency spikes despite having a similar minimum response time. Reconnecting and retesting improved performance, suggesting that the issue was related to the cellular network path rather than the laptop, Wi-Fi adapter, or hotspot configuration.
-
-## Final Diagnosis
-
-The Lenovo ThinkPad T15 was not identified as the source of the connectivity issue.
-
-### Ruled Out
-
-* SSD performance issues
-* CPU performance issues
-* Memory (RAM) limitations
-* Wi-Fi adapter faults
-* Weak hotspot signal
-* WPA3 wireless configuration issues
-* DHCP configuration issues
-* DNS resolution failures
-* General internet connectivity failures
-
-### Most Likely Cause
-
-Testing indicated that the issue was occurring beyond the laptop and local hotspot connection. Elevated latency, latency spikes, and inconsistent application performance pointed to instability within the cellular network path.
-
-As part of troubleshooting, the phone was switched from 5G to LTE and later returned to 5G. The hotspot connection was also effectively re-established during this process. Reconnecting required the phone to disconnect from the cellular network, re-register with the carrier, establish a new data session, and potentially connect through a different tower, sector, frequency band, or carrier routing path.
-
-The exact network change could not be determined; however, performance improved following these actions. This suggested that the issue was related to the mobile network connection, carrier routing, or cellular network conditions rather than a fault with the laptop hardware, Wi-Fi adapter, or operating system.
-
-## Recommended Fixes
-
-1. Use LTE when it provides lower and more stable latency than 5G.
+1. Compare LTE and 5G latency and use the more stable mode.
 2. Toggle airplane mode or reconnect the hotspot to establish a new cellular session.
-3. Perform ping testing during periods of poor performance to identify latency spikes.
-4. Compare performance from different physical locations and cellular coverage areas.
+3. Repeat gateway and internet ping tests to distinguish local Wi-Fi latency from carrier-path latency.
+4. Test from another location or time period to identify coverage or congestion patterns.
 
 ## Skills Demonstrated
 
-* Structured network troubleshooting
-* Wireless LAN diagnostics
-* IP configuration verification
-* Gateway identification and testing
-* Latency and jitter analysis
-* DNS troubleshooting
-* HTTP connectivity testing
-* Route tracing (tracert)
-* WAN versus LAN fault isolation
-* Evidence-based troubleshooting and documentation
+Network troubleshooting · Wi-Fi diagnostics · TCP/IP configuration · DHCP verification · Latency and jitter analysis · DNS testing · HTTP validation · Route tracing · LAN-versus-WAN fault isolation · Evidence-based root-cause analysis
+
+## Scope
+
+This diagnosis is based on observed endpoint and network behavior during the test period. Carrier-side telemetry was unavailable, so the cellular network path is identified as the most likely cause rather than a conclusively proven carrier fault.
