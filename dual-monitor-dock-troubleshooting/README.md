@@ -59,7 +59,7 @@ The limitation could move between the two physical monitors, indicating that nei
 
 ### 3. Alternate Dock Substitution
 
-The Lenovo 40AY and its 90 W adapter were replaced temporarily with a Dell WD19-family dock and 180 W adapter.
+The Lenovo 40AY and its 90W adapter were replaced temporarily with a Dell WD19-family dock and 180 W adapter.
 
 The same low-resolution behavior occurred with the alternate dock, substantially ruling out the original dock and power adapter as the primary cause.
 
