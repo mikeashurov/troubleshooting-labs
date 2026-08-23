@@ -102,7 +102,3 @@ Recommended actions for recurrence:
 ## Skills Demonstrated
 
 Display troubleshooting · Hardware substitution testing · Cable and port validation · Windows display configuration · Driver diagnostics · Firmware and BIOS verification · Device Manager event analysis · Sleep/wake troubleshooting · Root-cause isolation · Evidence-based technical documentation
-
-## Scope
-
-The exact Intel graphics driver repair operation was not recorded. This case study therefore documents the confirmed driver-related resolution without attributing it to a specific reinstall, rollback, reset, or file replacement procedure.
