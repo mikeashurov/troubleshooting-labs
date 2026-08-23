@@ -129,7 +129,7 @@ tracert 8.8.8.8
 | LTE          |   40 ms |   76 ms |   53 ms |          0% |
 | 5G           |   36 ms |  194 ms |   64 ms |          0% |
 
-Both modes provided connectivity, but LTE produced more consistent latency during the test test. The 5G connection had a similar minimum response time but substantially larger spikes.
+Both modes provided connectivity, but LTE produced more consistent latency during the test. The 5G connection had a similar minimum response time but substantially larger spikes.
 
 ## Root-Cause Assessment
 
