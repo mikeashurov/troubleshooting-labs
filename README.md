@@ -26,6 +26,14 @@ Testing compared direct and docked display paths, single- and dual-monitor behav
 
 **Tools:** Windows Display Settings · Device Manager · Lenovo Vantage · Dock firmware utility · Hardware substitution testing
 
+### [HP LaserJet Pro M102w Connectivity and Print-Quality Troubleshooting](printer-connectivity-print-quality/)
+
+Diagnosed failed iPhone connectivity and a persistent linear print defect on an HP wireless printer.
+
+**Outcome:** A static IPv4 address restored wireless connectivity. Replacing the scratched imaging drum resolved the print-quality problem.
+
+**Tools:** Printer network settings · Static IPv4 configuration · Test printing · Hardware inspection · Component replacement
+
 ## Skills Demonstrated
 
-Network troubleshooting · TCP/IP analysis · Wi-Fi diagnostics · DHCP and DNS validation · Latency and jitter analysis · Route tracing · Display troubleshooting · Hardware substitution testing · Driver and firmware diagnostics · Root-cause isolation · Technical documentation
+Network troubleshooting · TCP/IP analysis · Wi-Fi diagnostics · DHCP and DNS validation · Latency and jitter analysis · Route tracing · Display troubleshooting · Printer troubleshooting · APIPA identification · Static IPv4 configuration · Driver and firmware diagnostics · Hardware substitution · Component replacement · Root-cause isolation · Technical documentation
